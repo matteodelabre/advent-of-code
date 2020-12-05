@@ -6,21 +6,14 @@ try:
 except EOFError:
     pass
 
+x = 0
 w = len(tree_map[0])
-result = 1
+trees = 0
 
-for (xdel, ydel) in ((1, 1), (3, 1), (5, 1), (7, 1), (1, 2)):
-    trees = 0
-    x = 0
-    y = 0
+for y in range(len(tree_map)):
+    if tree_map[y][x] == '#':
+        trees += 1
 
-    while y < len(tree_map):
-        if tree_map[y][x] == '#':
-            trees += 1
+    x = (x + 3) % w
 
-        x = (x + xdel) % w
-        y += ydel
-
-    result *= trees
-
-print(result)
+print(trees)
