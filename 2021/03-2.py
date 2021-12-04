@@ -1,11 +1,5 @@
-nums = []
-
-try:
-    while True:
-        nums.append(input())
-except EOFError:
-    pass
-
+import sys
+nums = sys.stdin.readlines()
 digits = len(nums[0])
 oxy_nums = nums.copy()
 co2_nums = nums.copy()
