@@ -2,9 +2,10 @@ lines = []
 
 try:
     while True:
-        (x1, y1), (x2, y2) = \
-            map(lambda x: map(int, x.split(",")), input().split(" -> "))
-        lines.append([[x1, y1], [x2, y2]])
+        lines.append(tuple(map(
+            lambda x: tuple(map(int, x.split(","))),
+            input().split(" -> ")
+        )))
 except EOFError:
     pass
 
