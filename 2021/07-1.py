@@ -1,6 +1,4 @@
+from statistics import median_low
 pos = list(map(int, input().split(",")))
-
-def total(x):
-    return sum(abs(pos[i] - x) for i in range(len(pos)))
-
-print(min(total(x) for x in range(min(pos), max(pos) + 1)))
+med = median_low(pos)
+print(sum(abs(i - med) for i in pos))

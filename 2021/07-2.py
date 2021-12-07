@@ -1,9 +1,5 @@
+from statistics import median_low, mean
+from math import floor, ceil
 pos = list(map(int, input().split(",")))
-
-def fuel(d):
-    return d * (d + 1) // 2
-
-def total(x):
-    return sum(fuel(abs(pos[i] - x)) for i in range(len(pos)))
-
-print(min(total(x) for x in range(min(pos), max(pos) + 1)))
+avg = ceil(mean(pos)) if mean(pos) < median_low(pos) else floor(mean(pos))
+print(sum(abs(i - avg) * (abs(i - avg) + 1) // 2 for i in pos))
