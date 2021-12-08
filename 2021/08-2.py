@@ -1,87 +1,71 @@
-digit_segms = tuple(map(set, (
-    "abcefg",
-    "cf",
-    "acdeg",
-    "acdfg",
-    "bcdf",
-    "abdfg",
-    "abdefg",
-    "acf",
-    "abcdefg",
-    "abcdfg"
-)))
-digit_unique_counts = {2: 1, 3: 7, 4: 4, 7: 8}
-all_segms = "abcdefg"
+# Possible mappings of a segment based on occurrences
+segm_occurs = {
+    4: set("e"), 6: set("b"), 7: set("dg"),
+    8: set("ac"), 9: set("f"),
+}
 
-def map_observ(mapping, observ):
-    return digit_segms.index(set(sorted(min(mapping[segm]) for segm in observ)))
+# Digits w/ unique number of segments
+digit_lengths = {2: set("cf"), 3: set("acf"), 4: set("bcdf")}
 
-def mapping_copy(mapping):
-    return {segm: choices.copy() for segm, choices in mapping.items()}
+# Map “normal” segment combinations to digit value
+digit_values = (
+    "abcefg", "cf", "acdeg", "acdfg", "bcdf",
+    "abdfg", "abdefg", "acf", "abcdefg", "abcdfg",
+)
 
-def search_mapping(mapping, observs):
+all_segms = set("abcdefg")
+result = 0
+
+def deduce_mapping(observs, outputs):
+    mapping = {segm: all_segms.copy() for segm in all_segms}
+
+    # Map “easy” digits
+    for observ in observs + outputs:
+        if len(observ) in digit_lengths:
+            choices = digit_lengths[len(observ)]
+            for segm in observ:
+                mapping[segm] &= choices
+
+    # Use segment occurrences
+    occurs = {
+        segm: sum(observ.count(segm) for observ in observs)
+        for segm in all_segms
+    }
+
+    for segm in all_segms:
+        if occurs[segm] in segm_occurs:
+            mapping[segm] &= segm_occurs[occurs[segm]]
+
+    # Use uniqueness constraint
     changed = True
 
-    # Enforce unicity
     while changed:
         changed = False
 
-        for segm in mapping:
+        for segm in all_segms:
             if len(mapping[segm]) == 1:
                 mapped = min(mapping[segm])
 
-                for other_segm in mapping:
+                for other_segm in all_segms:
                     if segm != other_segm and mapped in mapping[other_segm]:
                         mapping[other_segm].remove(mapped)
-
-                        # Exhausted options
-                        if not mapping[other_segm]:
-                            return None
-
                         changed = True
 
-    # Make choices if needed
-    for segm in mapping:
-        if len(mapping[segm]) > 1:
-            for choice in mapping[segm]:
-                try_mapping = mapping_copy(mapping)
-                try_mapping[segm] = {choice}
-
-                if (result := search_mapping(try_mapping, observs)) is not None:
-                    return result
-
-    # Check consistency with observations
-    for observ in observs:
-        try:
-            map_observ(mapping, observ)
-        except ValueError:
-            return None
-
     return mapping
 
-def make_direct_mapping(observs):
-    mapping = {segm: set(all_segms) for segm in all_segms}
-
-    for observ in observs:
-        if len(observ) in digit_unique_counts:
-            observ_segms = digit_segms[digit_unique_counts[len(observ)]]
-
-            for choice in observ:
-                mapping[choice] &= observ_segms
-
-    return mapping
-
-result = 0
+def decode_output(outputs, mapping):
+    return int("".join(
+        str(digit_values.index(
+            "".join(sorted(min(mapping[segm]) for segm in output))
+        ))
+        for output in outputs
+    ))
 
 try:
     while True:
         observs, outputs = map(lambda x: x.split(), input().split(" | "))
-        mapping = make_direct_mapping(observs + outputs)
-        mapping = search_mapping(mapping, observs + outputs)
-        result += int("".join(
-            str(map_observ(mapping, output))
-            for output in outputs
-        ))
+        mapping = deduce_mapping(observs, outputs)
+        result += decode_output(outputs, mapping)
 except EOFError:
     pass
 
