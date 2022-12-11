@@ -1,0 +1,14 @@
+# vim: set ft=zsh:
+function get-input()
+{
+    local filepath
+    filepath="$(date +'%d').in"
+
+    if [[ -e $filepath ]]; then
+        echo "Input file already exists"
+    else
+        curl "https://adventofcode.com/$(date +'%Y')/day/$(date +'%-d')/input" \
+            --cookie "session=$(cat $HOME/.config/advent-of-code.cookie)" \
+            --output "$filepath"
+    fi
+}
